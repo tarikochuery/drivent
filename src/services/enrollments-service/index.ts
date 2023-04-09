@@ -7,12 +7,9 @@ import enrollmentRepository, { CreateEnrollmentParams } from '@/repositories/enr
 import { exclude } from '@/utils/prisma-utils';
 
 async function getAddressFromCEP(cep: string) {
-  // const cepRegex = /^\d{2}\d{3}\d{3}$/mg;
-  // if (!cepRegex.test(cep)) throw requestError(httpStatus.NO_CONTENT, 'Invalid CEP');
-
-  if (cep.length !== 8) throw requestError(httpStatus.NO_CONTENT, 'Invalid CEP');
-
   const result = await request.get(`${process.env.VIA_CEP_API}/${cep}/json/`);
+
+  if (result.status === 400) throw invalidDataError(['invalid CEP']);
 
   if (result.data.erro) {
     throw notFoundError();
