@@ -16,15 +16,12 @@ type CreatePaymentParams = PaymentSchema & {
 async function getPaymentByTicketId({ ticketId, userId }: GetPaymentByTicketIdParams) {
   if (!ticketId) throw requestError(httpStatus.BAD_REQUEST, 'Invalid Ticket Id.');
 
-  const userIdRaw = await paymentRepository.getUserIdByTicketId(ticketId);
+  const ticket = await ticketRepository.getTicketById(ticketId);
+  if (!ticket) throw notFoundError();
 
-  if (!userIdRaw) throw notFoundError();
+  const paymentUserId = await paymentRepository.getUserIdByTicketId(ticketId);
 
-  const {
-    Ticket: {
-      Enrollment: { userId: paymentUserId },
-    },
-  } = userIdRaw;
+  if (!paymentUserId) throw unauthorizedError();
 
   if (paymentUserId !== userId) throw unauthorizedError();
 
@@ -36,19 +33,16 @@ async function getPaymentByTicketId({ ticketId, userId }: GetPaymentByTicketIdPa
 }
 
 async function createPayment({ ticketId, cardData, userId }: CreatePaymentParams) {
-  if (!ticketId || !cardData) throw requestError(httpStatus.BAD_REQUEST, 'Invalid Ticket Id.');
   const ticket = await ticketRepository.getTicketById(ticketId);
-  console.log(ticket);
   if (!ticket) throw notFoundError();
 
-  const {
-    Ticket: {
-      Enrollment: { userId: paymentUserId },
-    },
-  } = await paymentRepository.getUserIdByTicketId(ticketId);
+  const paymentUserId = await paymentRepository.getUserIdByTicketId(ticketId);
+
+  if (!paymentUserId) throw unauthorizedError();
+
   if (paymentUserId !== userId) throw unauthorizedError();
 
-  const cardLastDigits = cardData.number.toString().slice(-4);
+  const cardLastDigits = cardData.number.slice(-4);
 
   const createPaymentParams = {
     ticketId,

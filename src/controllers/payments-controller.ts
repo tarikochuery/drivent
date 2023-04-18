@@ -33,12 +33,10 @@ export async function getPayment(req: AuthenticatedRequest, res: Response) {
 export async function processPayment(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const body = req.body as PaymentSchema;
-  console.log('entrei aqui');
   try {
     const payment = await paymentService.createPayment({ userId, ...body });
     res.send(payment);
   } catch (error) {
-    console.log(error);
     if (error.name === 'NotFoundError') {
       return res.sendStatus(httpStatus.NOT_FOUND);
     }

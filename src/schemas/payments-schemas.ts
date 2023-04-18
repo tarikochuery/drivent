@@ -3,21 +3,21 @@ import Joi, { ObjectSchema } from 'joi';
 export type PaymentSchema = {
   ticketId: number;
   cardData: {
-    issuer: 'VISA' | 'MASTERCARD';
-    number: number;
+    issuer: string;
+    number: string;
     name: string;
-    expirationDate: Date;
-    cvv: number;
+    expirationDate: string;
+    cvv: string;
   };
 };
 
 export const paymentSchema: ObjectSchema<PaymentSchema> = Joi.object({
   ticketId: Joi.number().required(),
   cardData: Joi.object({
-    issuer: Joi.string().required().valid('VISA', 'MASTERCARD'),
-    number: Joi.number().required(),
+    issuer: Joi.string().required(),
+    number: Joi.string().required(),
     name: Joi.string().required(),
-    expirationDate: Joi.date().required(),
-    cvv: Joi.number().required(),
+    expirationDate: Joi.string().required(),
+    cvv: Joi.string().required(),
   }),
 });

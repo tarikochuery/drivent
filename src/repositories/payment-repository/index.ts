@@ -1,30 +1,29 @@
 import { prisma } from '@/config';
-import { PaymentSchema } from '@/schemas/payments-schemas';
 
-type insertPayementParams = {
+type insertPaymentParams = {
   ticketId: number;
   value: number;
-  cardIssuer: 'VISA' | 'MASTERCARD';
+  cardIssuer: string;
   cardLastDigits: string;
 };
 
 async function getUserIdByTicketId(ticketId: number) {
-  return await prisma.payment.findFirst({
+  const {
+    Enrollment: { userId },
+  } = await prisma.ticket.findFirst({
     select: {
-      Ticket: {
+      Enrollment: {
         select: {
-          Enrollment: {
-            select: {
-              userId: true,
-            },
-          },
+          userId: true,
         },
       },
     },
     where: {
-      ticketId,
+      id: ticketId,
     },
   });
+
+  return userId;
 }
 
 async function getPaymentByTicketId(ticketId: number) {
@@ -35,7 +34,7 @@ async function getPaymentByTicketId(ticketId: number) {
   });
 }
 
-async function insertPayment({ cardIssuer, cardLastDigits, ticketId, value }: insertPayementParams) {
+async function insertPayment({ cardIssuer, cardLastDigits, ticketId, value }: insertPaymentParams) {
   return await prisma.payment.create({
     data: {
       cardIssuer,
