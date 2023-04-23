@@ -16,7 +16,6 @@ async function getHotels(userId: number): Promise<Hotel[]> {
   } = ticket;
   if (ticket.status !== 'PAID' || isRemote || !includesHotel) throw paymentRequiredError();
   const hotels = await hotelsRepository.getAll();
-  console.log(hotels);
   if (hotels.length === 0) throw notFoundError();
   return hotels;
 }
