@@ -98,6 +98,19 @@ describe('GET /hotels', () => {
       const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
     });
+    it('should return 404 if there is no hotel', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketType({
+        includesHotel: true,
+        isRemote: false,
+      });
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+      console.log(response.body);
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
     it('should respond with 200 and hotels information', async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
