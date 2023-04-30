@@ -11,3 +11,15 @@ export async function getBooking(req: AuthenticatedRequest, res: Response, next:
     next(error);
   }
 }
+
+export async function createBooking(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  const { userId } = req;
+  const roomId = req.body.roomId as number;
+
+  try {
+    const bookingData = await bookingService.createBooking({ userId, roomId });
+    return res.send(bookingData);
+  } catch (error) {
+    next(error);
+  }
+}
