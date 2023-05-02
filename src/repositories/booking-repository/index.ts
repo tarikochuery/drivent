@@ -3,6 +3,7 @@ import { BookingSchema } from '@/schemas';
 
 export type CreateBookingParams = BookingSchema & {
   userId: number;
+  bookingId?: number;
 };
 
 async function getBookingByUserId(userId: number) {
@@ -25,9 +26,24 @@ async function getBookingByRoomId(roomId: number) {
   });
 }
 
-async function createBooking({ roomId, userId }: CreateBookingParams) {
-  return prisma.booking.create({
-    data: {
+async function getBookingById(bookingId: number) {
+  return prisma.booking.findUnique({
+    where: {
+      id: bookingId,
+    },
+  });
+}
+
+async function upsertBooking({ roomId, userId, bookingId }: CreateBookingParams) {
+  return prisma.booking.upsert({
+    where: {
+      id: bookingId || 0,
+    },
+    create: {
+      roomId,
+      userId,
+    },
+    update: {
       roomId,
       userId,
     },
@@ -40,7 +56,8 @@ async function createBooking({ roomId, userId }: CreateBookingParams) {
 const bookingRepository = {
   getBookingByUserId,
   getBookingByRoomId,
-  createBooking,
+  getBookingById,
+  upsertBooking,
 };
 
 export default bookingRepository;
