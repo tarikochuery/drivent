@@ -140,6 +140,24 @@ describe('POST /booking', () => {
       expect(response.statusCode).toBe(httpStatus.NOT_FOUND);
     });
 
+    it('should respond with status 403 when room is booked', async () => {
+      const user = await createUser();
+      const anotherUser = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketType({
+        isRemote: false,
+        includesHotel: true,
+      });
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const hotel = await createHotel();
+      const room = await createRoomWithHotelId(hotel.id);
+      await createBooking(anotherUser.id, room.id);
+      const response = await server.post('/booking').send({ roomId: room.id }).set('Authorization', `Bearer ${token}`);
+
+      expect(response.statusCode).toBe(httpStatus.FORBIDDEN);
+    });
+
     it('Should respond with status 403 when ticket type is remote', async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
