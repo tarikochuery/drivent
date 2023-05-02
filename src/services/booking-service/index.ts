@@ -46,6 +46,8 @@ async function updateBooking({ userId, roomId, bookingId }: CreateBookingParams)
   if (!bookingIdExists) throw forbiddenAccessError();
 
   const userBooking = await bookingRepository.getBookingByUserId(userId);
+  if (!userBooking) throw forbiddenAccessError();
+
   if (userBooking.id !== bookingId) throw forbiddenAccessError();
 
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
