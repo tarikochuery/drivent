@@ -32,7 +32,7 @@ async function createBooking({ roomId, userId }: CreateBookingParams) {
       userId,
     },
     select: {
-      roomId: true,
+      id: true,
     },
   });
 }

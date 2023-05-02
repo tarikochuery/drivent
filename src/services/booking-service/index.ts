@@ -30,9 +30,9 @@ async function createBooking({ userId, roomId }: CreateBookingParams) {
 
   if (isRoomBooked) throw forbiddenAccessError();
 
-  const bookingInfo = bookingRepository.createBooking({ roomId, userId });
+  const { id } = await bookingRepository.createBooking({ roomId, userId });
 
-  return bookingInfo;
+  return { bookingId: id };
 }
 
 const bookingService = {
