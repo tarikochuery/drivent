@@ -14,11 +14,17 @@ async function getBooking(userId: number) {
 }
 
 async function createBooking({ userId, roomId }: CreateBookingParams) {
-  const { id: enrollmentId } = await enrollmentRepository.findWithAddressByUserId(userId);
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  if (!enrollment) throw forbiddenAccessError();
+
+  const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+
+  if (!ticket) throw forbiddenAccessError();
+
   const {
     status: ticketStatus,
     TicketType: { includesHotel, isRemote },
-  } = await ticketsRepository.findTicketByEnrollmentId(enrollmentId);
+  } = ticket;
 
   if (ticketStatus !== 'PAID' || !includesHotel || isRemote) throw forbiddenAccessError();
 
